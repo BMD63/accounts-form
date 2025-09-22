@@ -8,6 +8,6 @@ export interface Account {
     id: string;
     type: AccountType;
     login: string;
-    password: string;
+    password: string | null;
     labels: Label[];
 }

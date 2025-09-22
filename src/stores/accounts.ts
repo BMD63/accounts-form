@@ -65,22 +65,39 @@ export const useAccountsStore = defineStore('accounts', () => {
   }
 
   function updatePartial(id: string, patch: Partial<Omit<Account, 'id'>>) {
-  const i = accounts.value.findIndex(a => a.id === id);
-  if (i === -1) return;
+    const i = accounts.value.findIndex(a => a.id === id);
+    if (i === -1) return;
 
-  const curr = accounts.value[i];
-  if (!curr) return; 
+    const curr = accounts.value[i];
+    if (!curr) return; 
 
-  const next: Account = {
-    id: curr.id,
-    type: patch.type ?? curr.type,
-    login: patch.login ?? curr.login,
-    password: (patch.password === undefined ? curr.password : patch.password),
-    labels: patch.labels ?? curr.labels,
-  };
+    const next: Account = {
+      id: curr.id,
+      type: patch.type ?? curr.type,
+      login: patch.login ?? curr.login,
+      password: (patch.password === undefined ? curr.password : patch.password),
+      labels: patch.labels ?? curr.labels,
+    };
 
-  accounts.value.splice(i, 1, next);
-}
+    accounts.value.splice(i, 1, next);
+  }
+
+  function setType(id: string, type: Account['type']) {
+    const i = accounts.value.findIndex(a => a.id === id);
+    if (i === -1) return;
+    const curr = accounts.value[i];
+    if (!curr) return;
+    const nextPassword = type === 'LDAP' ? null : (curr.password ?? '');
+
+    const next: Account = {
+      id: curr.id,
+      type,
+      login: curr.login,
+      password: nextPassword,
+      labels: curr.labels,
+    };
+    accounts.value.splice(i, 1, next);
+  }
 
   return {
     accounts,
@@ -88,5 +105,6 @@ export const useAccountsStore = defineStore('accounts', () => {
     addEmpty,
     remove,
     updatePartial,
+    setType,
   };
 });
