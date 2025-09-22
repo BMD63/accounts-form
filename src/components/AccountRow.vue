@@ -56,83 +56,88 @@ function onChangeType() {
 
 <template>
   <li class="item" :class="{ 'no-password': typeValue !== 'LOCAL' }">
-    <!-- Метки -->
-    <div class="field">
-      <input
-        :id="'labels-' + account.id"
-        v-model="labelsInput"
-        type="text"
-        maxlength="300"
-        placeholder="Введите метку"
-        aria-label="Метки"
-        @blur="onBlurLabels"
-      />
-    </div>
+  <!-- Метки -->
+  <div class="field">
+    <input
+      :id="'labels-' + account.id"
+      v-model="labelsInput"
+      type="text"
+      maxlength="300"
+      placeholder="Введите метку или несколько"
+      aria-label="Метки"
+      @blur="onBlurLabels"
+    />
+  </div>
 
-    <!-- Логин -->
-    <div class="field">
-      <input
-        :id="'login-' + account.id"
-        v-model="login"
-        type="text"
-        maxlength="100"
-        placeholder="Введите логин"
-        aria-label="Логин"
-        :class="{ 'is-error': loginError }"
-        @blur="onBlurLogin"
-      />
-      <small v-if="loginError" class="help" style="color:#a11;">Обязательное поле (1–100 символов)</small>
-    </div>
+  <!-- Тип -->
+  <div class="field">
+    <select
+      :id="'type-' + account.id"
+      v-model="typeValue"
+      aria-label="Тип записи"
+      @change="onChangeType"
+    >
+      <option value="LOCAL">Локальная</option>
+      <option value="LDAP">LDAP</option>
+    </select>
+  </div>
 
-    <!-- Тип -->
-    <div class="field">
-      <select
-        :id="'type-' + account.id"
-        v-model="typeValue"
-        aria-label="Тип записи"
-        @change="onChangeType"
-      >
-        <option value="LOCAL">Локальная</option>
-        <option value="LDAP">LDAP</option>
-      </select>
-    </div>
+  <!-- Логин -->
+  <div class="field field--login">
+    <input
+      :id="'login-' + account.id"
+      v-model="login"
+      type="text"
+      maxlength="100"
+      placeholder="Введите логин"
+      aria-label="Логин"
+      :class="{ 'is-error': loginError }"
+      @blur="onBlurLogin"
+    />
+    <small v-if="loginError" class="help" style="color:#a11;">Обязательное поле (1–100 символов)</small>
+  </div>
 
-    <!-- Пароль (только для LOCAL) -->
-    <div class="field" v-if="typeValue === 'LOCAL'">
-      <input
-        :id="'pwd-' + account.id"
-        v-model="password"
-        type="password"
-        maxlength="100"
-        placeholder="Введите пароль"
-        aria-label="Пароль"
-        :class="{ 'is-error': passwordError }"
-        @blur="onBlurPassword"
-      />
-      <small v-if="passwordError" class="help" style="color:#a11;">Обязательное поле (1–100 символов)</small>
-    </div>
+  <!-- Пароль (только для LOCAL) -->
+  <div class="field" v-if="typeValue === 'LOCAL'">
+    <input
+      :id="'pwd-' + account.id"
+      v-model="password"
+      type="password"
+      maxlength="100"
+      placeholder="Введите пароль"
+      aria-label="Пароль"
+      :class="{ 'is-error': passwordError }"
+      @blur="onBlurPassword"
+    />
+    <small v-if="passwordError" class="help" style="color:#a11;">Обязательное поле (1–100 символов)</small>
+  </div>
 
-    <!-- Удаление -->
-    <div class="actions">
-      <button
-        class="icon-btn icon-btn--danger"
-        type="button"
-        title="Удалить"
-        aria-label="Удалить"
-        @click="$emit('remove')"
-      >
-        <span aria-hidden="true">🗑</span>
-      </button>
-    </div>
-  </li>
+  <!-- Действия -->
+  <div class="actions">
+    <button
+      class="trash-btn"
+      type="button"
+      title="Удалить"
+      aria-label="Удалить"
+      @click="$emit('remove')"
+    >
+      🗑
+    </button>
+  </div>
+</li>
 </template>
 
 <style scoped>
 .item {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 220px minmax(180px, 1fr) 44px;
-  gap: 12px 12px;
-  align-items: start;         
+  grid-template-columns:
+    minmax(280px, 300px)   
+    160px                 
+    minmax(240px, 1fr)    
+    minmax(240px, 1fr)     
+    44px;                 
+  gap: 12px;
+  align-items: start;
   padding: 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -140,58 +145,41 @@ function onChangeType() {
 }
 
 .item.no-password {
-  grid-template-columns: 1.2fr 1fr 220px 0 44px;
+  grid-template-columns:
+    minmax(280px, 300px)
+    160px
+    minmax(240px, 1fr)
+    0
+    44px;
+}
+.item.no-password .field--login {
+  grid-column: 3 / 5;
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 6px;
-}
-
-.field > input,
-.field > select {
-  width: 100%;
-  height: 36px;               
-}
-
-
-.help {
-  margin-top: 2px;
-  line-height: 1.25;
-}
-
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field > input, .field > select { width: 100%; height: 36px; }
+.help { margin-top: 2px; line-height: 1.25; }
 
 .actions {
   grid-column: 5;
   display: flex;
-  align-items: center;
+  align-items: start;
   justify-content: flex-end;
   justify-self: end;
-  align-self: start;          
 }
-
-.icon-btn {
+.trash-btn {
   width: 36px;
   height: 36px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
-  background: #fff;
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 18px;
+  line-height: 1;
   cursor: pointer;
-}
-.icon-btn:hover { background: var(--surface); }
-.icon-btn--danger {
-  border-color: color-mix(in srgb, var(--danger) 30%, #fff);
-  background: color-mix(in srgb, var(--danger) 8%, #fff);
   color: #a11;
 }
-.icon-btn--danger:hover {
-  background: color-mix(in srgb, var(--danger) 14%, #fff);
-  border-color: color-mix(in srgb, var(--danger) 45%, #fff);
-}
-
+.trash-btn:hover { transform: translateY(0.5px); }
 </style>

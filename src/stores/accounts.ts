@@ -53,9 +53,9 @@ export const useAccountsStore = defineStore('accounts', () => {
     const acc: Account = {
       id: genId(),
       labels: [],
-      type: 'LOCAL',
+      type: 'LDAP',
       login: '',
-      password: '',
+      password: null,
     };
     accounts.value.push(acc);
   }

@@ -5,6 +5,14 @@ import AccountRow from '@/components/AccountRow.vue';
 
 const store = useAccountsStore();
 
+onMounted(() => {
+  store.hydrate();
+});
+
+const showPasswordCol = computed(() =>
+  store.accounts.some(a => a.type === 'LOCAL')
+);
+
 const hasInvalid = computed(() =>
   store.accounts.some(a => {
     const login = (a.login ?? '').trim();
@@ -49,12 +57,12 @@ onMounted(() => {
       Список пуст. Нажмите «+», чтобы добавить запись.
     </div>
 
-    <div v-else class="cols-header">
-      <span>Метки</span>
-      <span>Логин</span>
-      <span>Тип записи</span>
-      <span>Пароль</span>
-      <span></span> 
+    <div v-else class="cols-header" :class="{ 'no-password': !showPasswordCol }">
+        <span>Метки</span>
+        <span>Тип записи</span>
+        <span>Логин</span>
+        <span v-if="showPasswordCol">Пароль</span>
+        <span></span>
     </div>
 
     <ul v-if="store.accounts.length" class="list">
@@ -103,12 +111,30 @@ onMounted(() => {
 
 .cols-header {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 220px minmax(180px, 1fr) 44px;
+  grid-template-columns:
+    minmax(280px, 300px)  
+    160px                  
+    minmax(240px, 1fr)     
+    minmax(240px, 1fr)     
+    44px;                  
   gap: 12px;
   align-items: center;
   padding: 6px 10px 8px;
   color: var(--muted);
   font-size: 12px;
+}
+
+.cols-header.no-password {
+  grid-template-columns:
+    minmax(280px, 300px)
+    160px
+    minmax(240px, 1fr)
+    0
+    44px;
+}
+
+.cols-header.no-password > span:nth-child(3) {
+  grid-column: 3 / 5;
 }
 .add-btn[disabled] {
   opacity: .5;
