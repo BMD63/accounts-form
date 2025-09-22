@@ -48,8 +48,16 @@ textarea {
   background: #fff;
   box-shadow: var(--shadow-sm);
   transition: border-color .15s ease, box-shadow .15s ease;
+  color: var(--fg);          
+  caret-color: var(--fg);   
+  background: #fff;      
+  -webkit-text-fill-color: var(--fg); 
 }
-
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
 input:focus,
 select:focus,
 textarea:focus {

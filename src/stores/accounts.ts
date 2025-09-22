@@ -64,10 +64,29 @@ export const useAccountsStore = defineStore('accounts', () => {
     accounts.value = accounts.value.filter((a) => a.id !== id);
   }
 
+  function updatePartial(id: string, patch: Partial<Omit<Account, 'id'>>) {
+  const i = accounts.value.findIndex(a => a.id === id);
+  if (i === -1) return;
+
+  const curr = accounts.value[i];
+  if (!curr) return; 
+
+  const next: Account = {
+    id: curr.id,
+    type: patch.type ?? curr.type,
+    login: patch.login ?? curr.login,
+    password: (patch.password === undefined ? curr.password : patch.password),
+    labels: patch.labels ?? curr.labels,
+  };
+
+  accounts.value.splice(i, 1, next);
+}
+
   return {
     accounts,
     hydrate,
     addEmpty,
     remove,
+    updatePartial,
   };
 });

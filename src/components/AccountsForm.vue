@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useAccountsStore } from '@/stores/accounts';
+import AccountRow from './AccountRow.vue';
 
 const store = useAccountsStore();
 
@@ -33,11 +34,12 @@ onMounted(() => {
     </div>
 
     <ul v-else class="list">
-      <li v-for="a in store.accounts" :key="a.id" class="item">
-        <span class="mono">{{ a.id }}</span>
-        <span>type: <b>{{ a.type }}</b></span>
-        <button class="remove-btn" @click="store.remove(a.id)" type="button" title="Удалить">🗑</button>
-      </li>
+    <AccountRow
+        v-for="a in store.accounts"
+        :key="a.id"
+        :account="a"
+        @remove="store.remove(a.id)"
+    />
     </ul>
   </section>
 </template>
