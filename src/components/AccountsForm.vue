@@ -1,12 +1,31 @@
+<script setup lang="ts">
+import { onMounted } from 'vue';
+import { useAccountsStore } from '@/stores/accounts';
+
+const store = useAccountsStore();
+
+onMounted(() => {
+  store.hydrate();
+});
+</script>
+
 <template>
   <section class="accounts-form">
     <header class="header">
       <h2>Учётные записи</h2>
-      <button class="add-btn" @click="store.addEmpty" type="button" title="Добавить учётную запись">+</button>
+      <button
+        class="add-btn"
+        @click="store.addEmpty"
+        type="button"
+        title="Добавить учётную запись"
+        aria-label="Добавить учётную запись"
+        >
+        <span class="add-btn__icon" aria-hidden="true">+</span>
+        </button>
     </header>
 
     <p class="hint">
-      Подсказка: для нескольких меток используйте «;». Полное редактирование добавим на следующих шагах.
+      Подсказка: для нескольких меток используйте «;». 
     </p>
 
     <div v-if="store.accounts.length === 0" class="empty">
@@ -23,16 +42,7 @@
   </section>
 </template>
 
-<script setup lang="ts">
-import { onMounted } from 'vue';
-import { useAccountsStore } from '@/stores/accounts';
 
-const store = useAccountsStore();
-
-onMounted(() => {
-  store.hydrate();
-});
-</script>
 
 <style scoped>
 .header {
@@ -45,11 +55,24 @@ onMounted(() => {
 .add-btn {
   border: 1px solid #ccc;
   background: #fff;
-  padding: 6px 10px;
-  border-radius: 6px;
+  border-radius: 8px;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
+  padding: 0;
 }
+
+.add-btn__icon {
+  font-size: 22px;   
+  line-height: 1;    
+  color: #111;       
+}
+
 .add-btn:hover { background: #f6f6f6; }
+.add-btn:active { transform: translateY(1px); }
 .hint { color: #666; margin: 0 0 8px; }
 .empty { opacity: 0.7; margin: 8px 0 16px; }
 
