@@ -39,7 +39,6 @@ onMounted(() => {
       <h2>Учётные записи</h2>
       <button
         class="add-btn"
-        :disabled="hasInvalid"
         @click="onAdd"
         type="button"
         title="Добавить учётную запись"
@@ -57,12 +56,17 @@ onMounted(() => {
       Список пуст. Нажмите «+», чтобы добавить запись.
     </div>
 
-    <div v-else class="cols-header" :class="{ 'no-password': !showPasswordCol }">
+    <div v-else class="cols-header">
+      <div class="cols-left">
         <span>Метки</span>
         <span>Тип записи</span>
+      </div>
+
+      <div class="cols-right" :class="{ single: !showPasswordCol }">
         <span>Логин</span>
         <span v-if="showPasswordCol">Пароль</span>
-        <span></span>
+        <span class="actions-spacer"></span>
+      </div>
     </div>
 
     <ul v-if="store.accounts.length" class="list">
@@ -96,10 +100,21 @@ onMounted(() => {
   cursor: pointer;
   padding: 0;
 }
-.add-btn__icon { font-size: 22px; line-height: 1; color: #111; }
-.add-btn:hover { background: #f6f6f6; }
-.hint { color: #666; margin: 0 0 8px; }
-.empty { opacity: 0.7; margin: 8px 0 16px; }
+.add-btn__icon { 
+  font-size: 22px; 
+  line-height: 1; 
+  color: #111; }
+.add-btn:hover { 
+  background: #f6f6f6; 
+}
+.hint { 
+  color: #666; 
+  margin: 0 0 8px; 
+}
+.empty { 
+  opacity: 0.7; 
+  margin: 8px 0 16px; 
+}
 
 .list {
   list-style: none;
@@ -111,12 +126,7 @@ onMounted(() => {
 
 .cols-header {
   display: grid;
-  grid-template-columns:
-    minmax(280px, 300px)  
-    160px                  
-    minmax(240px, 1fr)     
-    minmax(240px, 1fr)     
-    44px;                  
+  grid-template-columns: auto 1fr; 
   gap: 12px;
   align-items: center;
   padding: 6px 10px 8px;
@@ -124,20 +134,21 @@ onMounted(() => {
   font-size: 12px;
 }
 
-.cols-header.no-password {
-  grid-template-columns:
-    minmax(280px, 300px)
-    160px
-    minmax(240px, 1fr)
-    0
-    44px;
+.cols-left {
+  display: grid;
+  grid-template-columns: var(--col-label) var(--col-type);
+  gap: 12px;
 }
 
-.cols-header.no-password > span:nth-child(3) {
-  grid-column: 3 / 5;
+.cols-right {
+  display: grid;
+  grid-template-columns: 1fr 1fr var(--col-action);
+  gap: 12px;
 }
-.add-btn[disabled] {
-  opacity: .5;
-  cursor: not-allowed;
+.cols-right.single {
+  grid-template-columns: 1fr var(--col-action);
 }
+
+.cols-left > span, .cols-right > span { min-width: 0; }
+.actions-spacer { width: var(--col-action); }
 </style>
