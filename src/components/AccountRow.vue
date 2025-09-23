@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch, onMounted, computed } from 'vue';
 import type { Account } from '@/types/account';
 import { useAccountsStore } from '@/stores/accounts';
 import { parseLabels, labelsToString } from '@/composables/useLabels';
@@ -13,6 +13,15 @@ const props = defineProps<{
 defineEmits<{ (e: 'remove'): void }>();
 
 const store = useAccountsStore();
+
+const showPwd = ref(false);
+const pwdInputType = computed(() => (showPwd.value ? 'text' : 'password'));
+function togglePwd() {
+  showPwd.value = !showPwd.value;
+}
+
+const loginHelpId = `login-help-${props.account.id}`;
+const passwordHelpId = `pwd-help-${props.account.id}`;
 
 const loginEl = ref<HTMLInputElement | null>(null); 
 function focusLogin() {
@@ -134,22 +143,47 @@ function onChangeType() {
           :class="{ 'is-error': loginError }"
           @blur="onBlurLogin"
         />
-        <small v-if="loginError" class="help" style="color:#a11;">Обязательное поле (1–100 символов)</small>
+        <small v-if="loginError" class="help" :id="loginHelpId" style="color:#a11;">Обязательное поле (1–100 символов)</small>
       </div>
 
       <div class="field" v-if="typeValue === 'LOCAL'">
-        <input
-          :id="'pwd-' + account.id"
-          v-model="password"
-          type="password"
-          maxlength="100"
-          placeholder="Введите пароль"
-          aria-label="Пароль"
-          :class="{ 'is-error': passwordError }"
-          @blur="onBlurPassword"
-        />
-        <small v-if="passwordError" class="help" style="color:#a11;">Обязательное поле (1–100 символов)</small>
-      </div>
+        <div class="input-wrap">
+          <input
+            :id="'pwd-' + account.id"
+            v-model="password"
+            :type="pwdInputType"
+            maxlength="100"
+            placeholder="Введите пароль"
+            aria-label="Пароль"
+            :class="{ 'is-error': passwordError }"
+            :aria-invalid="passwordError ? 'true' : 'false'"
+            :aria-describedby="passwordError ? passwordHelpId : undefined"
+            @blur="onBlurPassword"
+          />
+          <button
+            class="eye-btn"
+            type="button"
+            :title="showPwd ? 'Скрыть пароль' : 'Показать пароль'"
+            :aria-label="showPwd ? 'Скрыть пароль' : 'Показать пароль'"
+            :aria-pressed="showPwd ? 'true' : 'false'"
+            @click="togglePwd"
+          >
+            <svg v-if="!showPwd" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M12 5c5.5 0 9.5 4.1 10.7 6-.9 1.3-4.7 6-10.7 6S2.5 12.3 1.3 11C2.5 9.1 6.5 5 12 5Z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="12" cy="11" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            <svg v-else viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+              <path d="M3 3l18 18" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M12 5c5.5 0 9.5 4.1 10.7 6-.6.9-2.6 3.3-5.7 4.9M6.9 7.1C4.1 8.6 2.5 10.6 1.3 11 2.5 12.9 6.5 17 12 17c1 0 2-.1 2.9-.3" fill="none" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="12" cy="11" r="3.5" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
+
+  <small v-if="passwordError" class="help" :id="passwordHelpId" style="color:#a11;">
+    Обязательное поле (1–100 символов)
+  </small>
+</div>
 
       <div class="actions">
         <button
@@ -159,7 +193,12 @@ function onChangeType() {
           aria-label="Удалить"
           @click="$emit('remove')"
         >
-          🗑
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M3 6h18" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M8 6V4.8c0-.44.36-.8.8-.8h6.4c.44 0 .8.36.8.8V6" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <rect x="5" y="6" width="14" height="14" rx="2" ry="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 10v6M14 10v6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
         </button>
       </div>
     </div>
@@ -214,10 +253,52 @@ function onChangeType() {
     justify-content: flex-end;
   }
   .trash-btn {
-    width: 36px; height: 36px;
-    display: inline-flex; align-items: center; justify-content: center;
-    background: none; border: none; padding: 0;
-    font-size: 18px; line-height: 1; cursor: pointer; color: #a11;
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    color: #777;        
+    opacity: .85;
+    line-height: 1;
   }
-  .trash-btn:hover { transform: translateY(0.5px); }
+  .trash-btn:hover { 
+    opacity: 1; 
+    color: #a11; 
+  }                 
+  .trash-btn:focus-visible { 
+    outline: 2px solid color-mix(in srgb, var(--brand) 50%, transparent); 
+    border-radius: 6px; 
+  }
+  .input-wrap {
+    position: relative;
+    min-width: 0;
+    }
+  .input-wrap > input {
+    padding-right: 36px; 
+  }
+
+  .eye-btn {
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 28px;
+    height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    color: #777;       
+    opacity: .85;
+  }
+  .eye-btn:hover { opacity: 1; color: #555; }
+  .eye-btn:focus-visible { outline: 2px solid color-mix(in srgb, var(--brand) 50%, transparent); border-radius: 6px; }
 </style>
