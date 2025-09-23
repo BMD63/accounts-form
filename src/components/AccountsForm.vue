@@ -58,8 +58,15 @@
       </button>
     </header>
 
-    <p class="hint">
-      Подсказка: для нескольких меток используйте «;».
+    <p class="hint" role="note">
+      <span class="hint-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="16" height="16">
+          <circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M9.8 9a2.2 2.2 0 1 1 3.7 1.6c-.6.5-1 .8-1 .8-.5.4-.7.8-.7 1.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="12" cy="16.5" r="1" fill="currentColor"/>
+        </svg>
+      </span>
+      Для указания нескольких меток одной пары логин/пароль используйте разделитель ;
     </p>
 
     <div
@@ -106,8 +113,8 @@
 .header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+  justify-content: flex-start; 
+  gap: 10px;                    
   margin-bottom: 8px;
 }
 .add-btn {
@@ -129,9 +136,24 @@
 .add-btn:hover { 
   background: #f6f6f6; 
 }
-.hint { 
-  color: #666; 
-  margin: 0 0 8px; 
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  margin: 0 0 8px;
+}
+.hint-icon {
+  display: inline-flex;
+  width: 22px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+  color: #444;
 }
 .empty { 
   opacity: 0.7; 
