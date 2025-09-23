@@ -4,7 +4,12 @@ import type { Account } from '@/types/account';
 import { useAccountsStore } from '@/stores/accounts';
 import { parseLabels, labelsToString } from '@/composables/useLabels';
 
-const props = defineProps<{ account: Account; focusId?: string | null }>(); 
+const props = defineProps<{
+  account: Account;
+  focusId?: string | null;
+  validateId?: string | null;   
+  validateTick?: number;        
+}>();
 defineEmits<{ (e: 'remove'): void }>();
 
 const store = useAccountsStore();
@@ -62,6 +67,27 @@ function onBlurPassword() {
   passwordError.value = value.length === 0 || value.length > 100;
   if (!passwordError.value) store.updatePartial(props.account.id, { password: value });
 }
+function validateAllRequiredNow() {
+  // логин обязателен всегда
+  const lv = login.value.trim();
+  loginError.value = lv.length === 0 || lv.length > 100;
+  // пароль обязателен только при LOCAL
+  if (typeValue.value === 'LOCAL') {
+    const pv = password.value;
+    passwordError.value = pv.length === 0 || pv.length > 100;
+  } else {
+    passwordError.value = false;
+  }
+}
+
+watch(
+  () => props.validateTick,
+  () => {
+    if (props.validateId === props.account.id) {
+      validateAllRequiredNow();  
+    }
+  }
+);
 function onChangeType() {
   store.setType(props.account.id, typeValue.value);
 }

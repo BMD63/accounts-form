@@ -1,25 +1,46 @@
 <script setup lang="ts">
-import { onMounted, computed, ref } from 'vue';
-import { useAccountsStore } from '@/stores/accounts';
-import AccountRow from '@/components/AccountRow.vue';
+  import { onMounted, computed, ref } from 'vue';
+  import { useAccountsStore } from '@/stores/accounts';
+  import AccountRow from '@/components/AccountRow.vue';
 
-const store = useAccountsStore();
+  const store = useAccountsStore();
 
-onMounted(() => {
-  store.hydrate();
-});
+  onMounted(() => {
+    store.hydrate();
+  });
 
-const showPasswordCol = computed(() =>
-  store.accounts.some(a => a.type === 'LOCAL')
-);
+  const showPasswordCol = computed(() =>
+    store.accounts.some(a => a.type === 'LOCAL')
+  );
 
-const focusId = ref<string | null>(null);
+  const focusId = ref<string | null>(null);
 
-function onAdd() {
-  if (store.hasInvalid) return;
+  const warnText = ref('');
+  const warnVisible = ref(false);
+  let warnTimer: number | undefined;
+
+  function showWarn(text: string, ms = 2500) {
+    warnText.value = text;
+    warnVisible.value = true;
+    if (warnTimer) window.clearTimeout(warnTimer);
+    warnTimer = window.setTimeout(() => (warnVisible.value = false), ms);
+  }
+
+  const validateId = ref<string | null>(null);
+  const validateTick = ref(0);
+
+  function onAdd() {
+    if (store.hasInvalid) {
+    const bad = store.accounts.find(a => !store.isValid(a));
+    validateId.value = bad?.id ?? null;
+    validateTick.value++; 
+    showWarn('Заполните текущую запись перед добавлением новой');
+    return;
+  }
   const id = store.addEmpty();
-  focusId.value = id; 
-}
+  focusId.value = id;
+  }
+  
 </script>
 
 <template>
@@ -40,6 +61,15 @@ function onAdd() {
     <p class="hint">
       Подсказка: для нескольких меток используйте «;».
     </p>
+
+    <div
+      class="toast"
+      :class="{ 'toast--show': warnVisible }"
+      role="status"
+      aria-live="polite"
+    >
+      {{ warnText }}
+    </div>
 
     <div v-if="store.accounts.length === 0" class="empty">
       Список пуст. Нажмите «+», чтобы добавить запись.
@@ -64,6 +94,8 @@ function onAdd() {
         :key="a.id"
         :account="a"
         :focus-id="focusId"
+        :validate-id="validateId"
+        :validate-tick="validateTick"
         @remove="store.remove(a.id)"
       />
     </ul>
@@ -141,4 +173,22 @@ function onAdd() {
 
 .cols-left > span, .cols-right > span { min-width: 0; }
 .actions-spacer { width: var(--col-action); }
+.toast {
+  position: relative;
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--danger) 8%, #fff);
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, #fff);
+  color: #a11;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity .18s ease, transform .18s ease;
+  pointer-events: none;
+  min-height: 0; 
+}
+.toast--show {
+  opacity: 1;
+  transform: translateY(0);
+}
 </style>
