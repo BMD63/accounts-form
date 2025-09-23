@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, ref } from 'vue';
 import { useAccountsStore } from '@/stores/accounts';
 import AccountRow from '@/components/AccountRow.vue';
 
@@ -13,24 +13,13 @@ const showPasswordCol = computed(() =>
   store.accounts.some(a => a.type === 'LOCAL')
 );
 
-const hasInvalid = computed(() =>
-  store.accounts.some(a => {
-    const login = (a.login ?? '').trim();
-    const loginInvalid = login.length === 0 || login.length > 100;
-    const pwdInvalid =
-      a.type === 'LOCAL' ? !(a.password && a.password.length > 0 && a.password.length <= 100) : false;
-    return loginInvalid || pwdInvalid;
-  })
-);
+const focusId = ref<string | null>(null);
 
 function onAdd() {
-  if (hasInvalid.value) return; 
-  store.addEmpty();
+  if (store.hasInvalid) return;
+  const id = store.addEmpty();
+  focusId.value = id; 
 }
-
-onMounted(() => {
-  store.hydrate();
-});
 </script>
 
 <template>
@@ -74,6 +63,7 @@ onMounted(() => {
         v-for="a in store.accounts"
         :key="a.id"
         :account="a"
+        :focus-id="focusId"
         @remove="store.remove(a.id)"
       />
     </ul>

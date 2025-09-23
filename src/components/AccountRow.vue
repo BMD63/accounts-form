@@ -1,13 +1,26 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import type { Account } from '@/types/account';
 import { useAccountsStore } from '@/stores/accounts';
 import { parseLabels, labelsToString } from '@/composables/useLabels';
 
-const props = defineProps<{ account: Account }>();
+const props = defineProps<{ account: Account; focusId?: string | null }>(); 
 defineEmits<{ (e: 'remove'): void }>();
 
 const store = useAccountsStore();
+
+const loginEl = ref<HTMLInputElement | null>(null); 
+function focusLogin() {
+  requestAnimationFrame(() => loginEl.value?.focus());
+}
+
+onMounted(() => {
+  if (props.focusId === props.account.id) focusLogin();
+});
+
+watch(() => props.focusId, (v) => {
+  if (v === props.account.id) focusLogin();
+});
 
 /* --- Метки --- */
 const labelsInput = ref(labelsToString(props.account.labels));
@@ -85,6 +98,7 @@ function onChangeType() {
     <div class="right" :class="{ single: typeValue !== 'LOCAL' }">
       <div class="field">
         <input
+          ref="loginEl"
           :id="'login-' + account.id"
           v-model="login"
           type="text"
